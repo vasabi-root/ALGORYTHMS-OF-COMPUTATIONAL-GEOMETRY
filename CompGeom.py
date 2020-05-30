@@ -1,4 +1,4 @@
-def mk_OP(a):
+def mk_OP(a):      # построение ограничительного прямоугольника
     x1 = min(a[0][0],a[2][0])
     x2 = max(a[0][0],a[2][0])
     y1 = min(a[0][1],a[2][1])
@@ -8,37 +8,36 @@ def mk_OP(a):
     p = [t1,t2]
     return p
 
-def find_OP_cross(p1,p2):
+def find_OP_cross(p1,p2): # нахождение пересечеений между ограничительными прямоугольниками
     if((p1[1][0] >= p2[0][0]) and (p2[1][0] >= p1[0][0]) and (p1[1][1] >= p2[0][1]) and (p2[1][1] >= p1[0][1])):
         return True
     else:
         return False
     
-def area(a,b,c):
+def area(a,b,c):  # ориентированная площадь треугольника
     S = (b[0]-a[0])*(c[1]-a[1]) - (b[1]-a[1])*(c[0]-a[0])
     return S
 
-def exact_method(a,b):
+def exact_method(a,b):  # точный метод определения пересечения 2-х отрезков
     S1 = area(a[0],a[2],b[0])
     S2 = area(a[0],a[2],b[2])
     S3 = area(b[0],b[2],a[0])
     S4 = area(b[0],b[2],a[2])
     if (S1 * S2 > 0) or (S3 * S4 > 0):
-        return 0
-    #else if (S1 * S2 < 0) or (S3 * S4 < 0):
+        return 0 # не пересекаются
     elif (S1 == 0) and (S2 == 0) and (S3 == 0) and (S4 == 0):
         return -1 # накладываются друг на друга (пресекаются и лежат на одной прямой)
     else: 
         return 1 # все остальные случаи, когда отрезки не пересекаются, были отброшены на первом этапе
     
 
-def PPPO(a,b):
+def PPPO(a,b): # эффективный метод проверки пересечения 2-х отрезков
     if not(find_OP_cross(mk_OP(a),mk_OP(b))):
         return 0
     else:
         return exact_method(a,b)
 
-def cross(a,b):
+def cross(a,b): # координаты точки пересечения 2-х отрезков  (если они на одной прямой, то за точку пересечения берётся точка конца отрезка, которая пересекается с другим отрезком)
     p = PPPO(a,b)
     if (p == 1):
         A1 = a[0][1] - a[2][1]
@@ -66,17 +65,13 @@ def cross(a,b):
             c = b[2]
     return c
         
-def sorter(mas):
+def sorter(mas): # сортировка координат точек начала и конца отрезков списка mas по возрастанию х, если же х1 == х2, то по у
     for i in range (0,len(mas)):
         if (mas[i][0][0] > mas[i][1][0]) or ((mas[i][0][0] == mas[i][1][0]) and (mas[i][0][1] > mas[i][1][1])):
             mas[i][0],mas[i][1] = mas[i][1],mas[i][0]
-        #seg.insert(1,seg[0])
-    '''if (seg[0][0] > seg[1][0]) or ((seg[0][0] == seg[1][0]) and (seg[0][1] > seg[1][1])):
-        seg[0],seg[1] = seg[1],seg[0]
-    seg.insert(1,seg[0])'''
     return mas
 
-def Q_push(Q,seg):
+def Q_push(Q,seg): # добавление координат точек в траекторию заметающей прямой (по возрастанию х с приоритетом координат точек начала)
     i = 0
     for i in range(0,3,2):
         j = 0
@@ -90,41 +85,11 @@ def Q_push(Q,seg):
                 min_x_index = j
                 
         Q.insert(min_x_index,seg[i])
-        
-'''def L_above (seg_index, L, x, y_max):
-    len_L = len(L)
-    p = [[x,0],[x,y_max]]
-    current = cross(p,L[seg_index])
-    above_p = y_m+1
-    for i in range (0,len_L):
-        if (i != seg_index):
-            c = cross(p,L[i])
-            if (c[1] < above_p) and (c[1] > current[1]):
-                above_p = c[1]
-                above = L[i]
-    if (above_p == y_m+1):
-        above = L[seg_index]
-    return above
 
-def L_under (seg_index, L, x, y_max):
-    len_L = len(L)
-    p = [[x,0],[x,y_max]]
-    current = cross(p,L[seg_index])
-    under_p = y_m+1
-    for i in range (0,len_L):
-        if (i != seg_index):
-            c = cross(p,L[i])
-            if (c[1] < under_p) and (c[1] > current[1]):
-                under_p = c[1]
-                under = L[i]
-    if (under_p == y_m+1):
-        under = L[seg_index]
-    return under'''
-
-def Q_pop(Q):
+def Q_pop(Q): # удаление координат первой точки из траектории заметающей прямой
     return Q.pop(0)
 
-def A_belong(A,el):
+def A_belong(A,el): # проверка на принадлежность элемента к списку пересекающихся прямых
     len_A = len(A)
     i = 0
     while (i < len_A) and (A[i] != [el[0],el[1]]) and (A[i] != [el[1],el[0]]):
@@ -134,7 +99,7 @@ def A_belong(A,el):
     else:
         return 1
 
-def L_refresh(L, y_max, y_min, x, A):
+def L_refresh(L, y_max, y_min, x, A): # обновление статуса заметающей прямой
     line = [[x,y_min],[x,y_min],[x,y_max]]
     len_L = len(L)
     for i in range(0,len_L):
@@ -166,7 +131,7 @@ def L_refresh(L, y_max, y_min, x, A):
             j = k
     
 
-def L_push(seg, L):
+def L_push(seg, L): # вставка нового отрезка в список текущих проверяемых отрезков
     len_L = len(L)
     min_y_index = 0
     i = 0
@@ -175,7 +140,7 @@ def L_push(seg, L):
         min_y_index = i
     L.insert(min_y_index,seg)
 
-def L_pop(seg, L):
+def L_pop(seg, L): # удаление отрезка из списока текущих проверяемых отрезков
     len_L = len(L)
     seg_index = -1
     i = 0
@@ -185,7 +150,7 @@ def L_pop(seg, L):
         i += 1
     L.pop(seg_index)
 
-def belong(L,seg):
+def belong(L,seg): # проверка принадлежности отрезка seg списку отрезков L
     len_L = len(L)
     i = 0
     while (i < len_L) and (L[i] != seg):
@@ -195,7 +160,7 @@ def belong(L,seg):
     else:
         return 1
 
-def find(P, L, p):
+def find(P, L, p): # поиск такого отрезка seg из Р, у которого одна из координат == p, в приоритете начала отрезков, которх нет в списке заметающей прямой L
     i = 0
     seg = None
     while (i < len(P)):
@@ -213,7 +178,7 @@ def find(P, L, p):
         P.pop(i)
     return seg
 
-def VPO(P):
+def VPO(P): # поиск всех пересекающихся отрезков на плоскости
     a = list(P)
     a = sorter(a)
     for i in range (0,len(a)):
@@ -249,21 +214,18 @@ def VPO(P):
         P[i].pop(1)
     return C
 
-def TPM (A):
+def TPM (A): # проверка простоты многоугольника
     C = VPO(A)
     if (len(C) > len(A)):
         return 0
     elif (len(C) == len(A)):
         return 1
-##def hor_line(P1,P2):
-##    for i in range (0,len(P1)):
-##        if (P1[i] )
     
 
-def exist_versa(A,M):
-    line_y = A[0][0][0][1]
-    P = M[1]
-    up_left = -1
+def exist_versa(A,M): # проверка существования противоположно лежащих отрезков, относительно горизонтального отрезка P, 
+    line_y = A[0][0][0][1]                                                                                       #\ _P_
+    P = M[1]                                                                                                     #      \      
+    up_left = -1           
     down_left = -1
     up_right = -1
     down_right = -1
@@ -318,8 +280,8 @@ def exist_versa(A,M):
             A.pop(up_right-1)
         return False
 
-def one_side(A,M):
-    line_y = A[0][0][0][1]
+def one_side(A,M): # проверка вершины многоугольника - True, если оба других рёбер, формирующих вершину, находятся по одну сторону
+    line_y = A[0][0][0][1]#                                                                             \/  или  /\
     P = M[1]
     up = 0
     down = 0
@@ -356,7 +318,7 @@ def one_side(A,M):
         A.pop(up)
         return False
     
-def PPM(P1,P2):
+def PPM(P1,P2): # проверка пересечения 2-х любых многоугольников
     P1 = sorter(P1)
     P2 = sorter(P2)
     len_P1 = len(P1)

@@ -180,7 +180,7 @@ def find(P, L, p): # поиск такого отрезка seg из Р, у ко
         if (P[i][0] == p)  and not belong(L,P[i]):
             if (seg == None):
                 seg = P[i]
-            elif (seg[1][1] > P[i][1][1]) or (seg[1][1] == P[i][1][1] and seg[1][0] < P[i][1][0]):
+            elif (area(P[i][0],P[i][1],seg[1]) > 0):
                 seg = P[i]
         i += 1
     if (seg == None):
